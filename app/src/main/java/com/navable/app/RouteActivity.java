@@ -1,5 +1,6 @@
 package com.navable.app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.widget.Button;
@@ -20,6 +21,7 @@ import java.util.Locale;
 public class RouteActivity extends AppCompatActivity {
 
     private TextToSpeech tts;
+    private RouteResponse route;
     private List<RouteStep> steps;
     private GuidanceMode guidanceMode = GuidanceMode.STANDARD;
 
@@ -28,7 +30,7 @@ public class RouteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route);
 
-        RouteResponse route = (RouteResponse) getIntent().getSerializableExtra("route");
+        route = (RouteResponse) getIntent().getSerializableExtra("route");
 
         if (route == null || !Boolean.TRUE.equals(route.getFound())) {
             Toast.makeText(this, "No route found!", Toast.LENGTH_SHORT).show();
@@ -67,6 +69,14 @@ public class RouteActivity extends AppCompatActivity {
 
         Button btnBack = findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> finish());
+
+        Button btnLiveNavigation = findViewById(R.id.btnLiveNavigation);
+        btnLiveNavigation.setOnClickListener(v -> {
+            Intent intent = new Intent(RouteActivity.this, LiveNavigationActivity.class);
+            intent.putExtra("route", route);
+            intent.putExtra("guidanceMode", guidanceMode);
+            startActivity(intent);
+        });
     }
 
     private void speakRoute() {
