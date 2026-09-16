@@ -3,14 +3,17 @@ package com.navable.app;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.widget.Button;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.navable.app.adapter.RouteStepAdapter;
+import com.navable.app.model.GuidanceMode;
 import com.navable.app.model.RouteResponse;
 import com.navable.app.model.RouteStep;
+import com.navable.app.util.NavigationGuide;
 import java.util.List;
 import java.util.Locale;
 
@@ -18,6 +21,7 @@ public class RouteActivity extends AppCompatActivity {
 
     private TextToSpeech tts;
     private List<RouteStep> steps;
+    private GuidanceMode guidanceMode = GuidanceMode.STANDARD;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +51,17 @@ public class RouteActivity extends AppCompatActivity {
             }
         });
 
+        RadioGroup radioGroupGuidanceMode = findViewById(R.id.radioGroupGuidanceMode);
+        radioGroupGuidanceMode.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.radioMinimal) {
+                guidanceMode = GuidanceMode.MINIMAL;
+            } else if (checkedId == R.id.radioPrecision) {
+                guidanceMode = GuidanceMode.PRECISION;
+            } else {
+                guidanceMode = GuidanceMode.STANDARD;
+            }
+        });
+
         Button btnSpeak = findViewById(R.id.btnSpeak);
         btnSpeak.setOnClickListener(v -> speakRoute());
 
@@ -56,19 +71,8 @@ public class RouteActivity extends AppCompatActivity {
 
     private void speakRoute() {
         if (tts == null) return;
-        StringBuilder sb = new StringBuilder();
-        sb.append("Route found. ");
-        for (int i = 0; i < steps.size(); i++) {
-            RouteStep step = steps.get(i);
-            if (i == 0) {
-                sb.append("Start at ").append(step.getLocationName()).append(". ");
-            } else {
-                sb.append("Walk ").append(String.format("%.0f", step.getDistanceFromPrevious()))
-                  .append(" meters to ").append(step.getLocationName()).append(". ");
-            }
-        }
-        sb.append("You have arrived at your destination.");
-        tts.speak(sb.toString(), TextToSpeech.QUEUE_FLUSH, null, null);
+        String text = NavigationGuide.buildSpokenRoute(steps, guidanceMode);
+        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
     }
 
     @Override

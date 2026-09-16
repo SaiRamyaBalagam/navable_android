@@ -7,9 +7,13 @@ public class RouteStep implements Serializable {
     private String locationName;
     private String locationType;
     private Double distanceFromPrevious;
+    private Double xCoordinate;
+    private Double yCoordinate;
 
     public Long getLocationId() { return locationId; }
     public String getLocationName() { return locationName; }
     public String getLocationType() { return locationType; }
     public Double getDistanceFromPrevious() { return distanceFromPrevious; }
+    public Double getXCoordinate() { return xCoordinate; }
+    public Double getYCoordinate() { return yCoordinate; }
 }
